@@ -5,12 +5,14 @@ class CartSummaryBar extends StatelessWidget {
   final int totalItem;
   final int totalHarga;
   final VoidCallback onKosongkan;
+  final VoidCallback onCheckout;
 
   const CartSummaryBar({
     super.key,
     required this.totalItem,
     required this.totalHarga,
     required this.onKosongkan,
+    required this.onCheckout,
   });
 
   @override
@@ -22,14 +24,22 @@ class CartSummaryBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            '$totalItem item • Rp$totalHarga',
-            style: theme.textTheme.titleMedium,
-          ),
-          PrimaryButton(
-            label: 'Kosongkan',
-            icon: Icons.delete_outline,
-            onPressed: onKosongkan,
+          Text('$totalItem item • Rp$totalHarga',
+              style: theme.textTheme.titleMedium),
+          Row(
+            children: [
+              PrimaryButton(
+                label: 'Kosongkan',
+                icon: Icons.delete_outline,
+                onPressed: onKosongkan,
+              ),
+              const SizedBox(width: 8),
+              PrimaryButton(
+                label: 'Checkout',
+                icon: Icons.check_circle_outline,
+                onPressed: onCheckout,
+              ),
+            ],
           ),
         ],
       ),
