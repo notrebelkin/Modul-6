@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/keranjang_cubit.dart';
 import '../models/produk.dart';
+import '../models/pesanan.dart';
+import '../db/database_helper.dart';
 import '../widgets/cart_summary_bar.dart';
 import '../widgets/theme_toggle_button.dart';
+import 'halaman_riwayat.dart';
 
 class HalamanKeranjang extends StatelessWidget {
   const HalamanKeranjang({super.key});
@@ -13,7 +16,18 @@ class HalamanKeranjang extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Keranjang'),
-        actions: const [ThemeToggleButton()],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.receipt_long),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const HalamanRiwayat()),
+              );
+            },
+          ),
+          const ThemeToggleButton(),
+        ],
       ),
       body: BlocBuilder<KeranjangCubit, List<ItemKeranjang>>(
         builder: (context, daftarItem) {
@@ -40,6 +54,23 @@ class HalamanKeranjang extends StatelessWidget {
                 totalHarga: totalHarga,
                 onKosongkan: () =>
                     context.read<KeranjangCubit>().kosongkan(),
+                onCheckout: () async {
+                  if (daftarItem.isEmpty) return;
+                  final ringkasan =
+                      daftarItem.map((item) => item.produk.nama).join(', ');
+                  await DatabaseHelper.instance.tambahPesanan(
+                    Pesanan(
+                      ringkasanItem: ringkasan,
+                      totalItem: totalItem,
+                      totalHarga: totalHarga,
+                      tanggal: DateTime.now().toString(),
+                    ),
+                  );
+                  context.read<KeranjangCubit>().kosongkan();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Pesanan berhasil disimpan.')),
+                  );
+                },
               ),
             ],
           );
